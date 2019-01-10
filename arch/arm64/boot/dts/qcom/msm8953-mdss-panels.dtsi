@@ -28,6 +28,7 @@
 #include "dsi-panel-boent51021-1200p-video.dtsi"
 #include "dsi-panel-hx8394d-wxga-video.dtsi"
 #include "dsi-panel-inxnt51021-1200p-video.dtsi"
+#include "dsi-panel-starry-800p-video.dtsi"
 
 &soc {
 	dsi_panel_pwr_supply: dsi_panel_pwr_supply {
@@ -201,4 +202,12 @@
 		25 20 08 0A 06 03 04 a0
 		25 20 08 0A 06 03 04 a0
 		25 1D 08 0A 06 03 04 a0];
+};
+
+&dsi_starry_800p_video {
+	qcom,mdss-dsi-panel-timings-phy-v2 = [1f 1c 05 06 03 03 04 a0
+		1f 1c 05 06 03 03 04 a0
+		1f 1c 05 06 03 03 04 a0
+		1f 1c 05 06 03 03 04 a0
+		1f 10 05 06 03 03 04 a0];
 };
