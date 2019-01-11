@@ -27,6 +27,3 @@
 	status = "okay";
 };
 
-&mdss_dsi0 {
-	qcom,dsi-pref-prim-pan = <&dsi_starry_800p_video>;
-};
