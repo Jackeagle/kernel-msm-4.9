@@ -17,7 +17,7 @@
 #include "apq8053-lenovo-lite-v1.0.dtsi"
 
 / {
-	model = "Qualcomm Technologies, Inc. APQ8053 SparrowLite Lenovo V1.0 Board";
+	model = "Qualcomm Technologies, Inc. APQ8053 DragonBoard V2.2.2";
 	compatible = "qcom,apq8053-lite-dragonboard", "qcom,apq8053",
 			"qcom,dragonboard";
 	qcom,board-id = <0x01010420 0>;
