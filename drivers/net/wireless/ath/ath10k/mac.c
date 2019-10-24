@@ -5233,6 +5233,9 @@ static int ath10k_add_interface(struct ieee80211_hw *hw,
 	arvif->ar = ar;
 	arvif->vif = vif;
 
+	// assign type of the new interface to the parent type (SDIO, PCI, etc)
+	ar->dev_type = arvif->ar->bus_param.dev_type;
+
 	INIT_LIST_HEAD(&arvif->list);
 	INIT_WORK(&arvif->ap_csa_work, ath10k_mac_vif_ap_csa_work);
 	INIT_DELAYED_WORK(&arvif->connection_loss_work,
