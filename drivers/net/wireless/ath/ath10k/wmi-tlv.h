@@ -290,6 +290,7 @@ enum wmi_tlv_event_id {
 	WMI_TLV_SERVICE_READY_EVENTID = 0x1,
 	WMI_TLV_READY_EVENTID,
 	WMI_TLV_SERVICE_AVAILABLE_EVENTID,
+	WMI_TLV_IFACE_COMBINATION_EVENTID,
 	WMI_TLV_SCAN_EVENTID = WMI_TLV_EV(WMI_TLV_GRP_SCAN),
 	WMI_TLV_PDEV_TPC_CONFIG_EVENTID = WMI_TLV_EV(WMI_TLV_GRP_PDEV),
 	WMI_TLV_CHAN_INFO_EVENTID,
@@ -1237,6 +1238,121 @@ enum wmi_tlv_tag {
 	WMI_TLV_TAG_STRUCT_FD_SEND_FROM_HOST_CMD,
 	WMI_TLV_TAG_STRUCT_ENABLE_FILS_CMD,
 	WMI_TLV_TAG_STRUCT_HOST_SWFDA_EVENT,
+	WMI_TLV_TAG_STRUCT_BCN_OFFLOAD_CTRL_CMD,
+	WMI_TLV_TAG_STRUCT_PDEV_SET_AC_TXQ_OPTIMIZED_CMD,
+	WMI_TLV_TAG_STRUCT_STATS_PERIOD,
+	WMI_TLV_TAG_STRUCT_NDL_SCHEDULE_UPDATE,
+	WMI_TLV_TAG_STRUCT_PEER_TID_MSDUQ_QDEPTH_THRESH_UPDATE_CMD,
+	WMI_TLV_TAG_STRUCT_MSDUQ_QDEPTH_THRESH_UPDATE,
+	WMI_TLV_TAG_STRUCT_PDEV_SET_RX_FILTER_PROMISCUOUS_CMD,
+	WMI_TLV_TAG_STRUCT_SAR2_RESULT_EVENT,
+	WMI_TLV_TAG_STRUCT_SAR_CAPABILITIES,
+	WMI_TLV_TAG_STRUCT_SAP_OBSS_DETECTION_CFG_CMD,
+	WMI_TLV_TAG_STRUCT_SAP_OBSS_DETECTION_INFO_EVENT,
+	WMI_TLV_TAG_STRUCT_DMA_RING_CAPABILITIES,
+	WMI_TLV_TAG_STRUCT_DMA_RING_CFG_REQ,
+	WMI_TLV_TAG_STRUCT_DMA_RING_CFG_RSP,
+	WMI_TLV_TAG_STRUCT_DMA_BUF_RELEASE,
+	WMI_TLV_TAG_STRUCT_DMA_BUF_RELEASE_ENTRY,
+	WMI_TLV_TAG_STRUCT_SAR_GET_LIMITS_CMD,
+	WMI_TLV_TAG_STRUCT_SAR_GET_LIMITS_EVENT,
+	WMI_TLV_TAG_STRUCT_SAR_GET_LIMITS_EVENT_ROW,
+	WMI_TLV_TAG_STRUCT_OFFLOAD_11K_REPORT,
+	WMI_TLV_TAG_STRUCT_INVOKE_NEIGHBOR_REPORT,
+	WMI_TLV_TAG_STRUCT_NEIGHBOR_REPORT_OFFLOAD_TLV_PARAM,
+	WMI_TLV_TAG_STRUCT_VDEV_SET_CONNECTIVITY_CHECK_STATS,
+	WMI_TLV_TAG_STRUCT_VDEV_GET_CONNECTIVITY_CHECK_STATS,
+	WMI_TLV_TAG_STRUCT_BPF_SET_VDEV_ENABLE_CMD,
+	WMI_TLV_TAG_STRUCT_BPF_SET_VDEV_WORK_MEMORY_CMD,
+	WMI_TLV_TAG_STRUCT_BPF_GET_VDEV_WORK_MEMORY_CMD,
+	WMI_TLV_TAG_STRUCT_BPF_GET_VDEV_WORK_MEMORY_RESP_EVENT,
+	WMI_TLV_TAG_STRUCT_PDEV_GET_NFCAL_POWER,
+	WMI_TLV_TAG_STRUCT_BSS_COLOR_CHANGE_ENABLE,
+	WMI_TLV_TAG_STRUCT_OBSS_COLOR_COLLISION_DET_CONFIG,
+	WMI_TLV_TAG_STRUCT_OBSS_COLOR_COLLISION_EVENT,
+	WMI_TLV_TAG_STRUCT_RUNTIME_DPD_RECAL_CMD,
+	WMI_TLV_TAG_STRUCT_TWT_ENABLE_CMD,
+	WMI_TLV_TAG_STRUCT_TWT_DISABLE_CMD,
+	WMI_TLV_TAG_STRUCT_TWT_ADD_DIALOG_CMD,
+	WMI_TLV_TAG_STRUCT_TWT_DEL_DIALOG_CMD,
+	WMI_TLV_TAG_STRUCT_TWT_PAUSE_DIALOG_CMD,
+	WMI_TLV_TAG_STRUCT_TWT_RESUME_DIALOG_CMD,
+	WMI_TLV_TAG_STRUCT_TWT_ENABLE_COMPLETE_EVENT,
+	WMI_TLV_TAG_STRUCT_TWT_DISABLE_COMPLETE_EVENT,
+	WMI_TLV_TAG_STRUCT_TWT_ADD_DIALOG_COMPLETE_EVENT,
+	WMI_TLV_TAG_STRUCT_TWT_DEL_DIALOG_COMPLETE_EVENT,
+	WMI_TLV_TAG_STRUCT_TWT_PAUSE_DIALOG_COMPLETE_EVENT,
+	WMI_TLV_TAG_STRUCT_TWT_RESUME_DIALOG_COMPLETE_EVENT,
+	WMI_TLV_TAG_STRUCT_REQUEST_ROAM_SCAN_STATS_CMD,
+	WMI_TLV_TAG_STRUCT_ROAM_SCAN_STATS_EVENT,
+	WMI_TLV_TAG_STRUCT_PEER_TID_CONFIGURATIONS_CMD,
+	WMI_TLV_TAG_STRUCT_VDEV_SET_CUSTOM_SW_RETRY_TH_CMD,
+	WMI_TLV_TAG_STRUCT_GET_TPC_POWER_CMD,
+	WMI_TLV_TAG_STRUCT_GET_TPC_POWER_EVENT,
+	WMI_TLV_TAG_STRUCT_DMA_BUF_RELEASE_SPECTRAL_META_DATA,
+	WMI_TLV_TAG_STRUCT_MOTION_DET_CONFIG_PARAMS_CMD,
+	WMI_TLV_TAG_STRUCT_MOTION_DET_BASE_LINE_CONFIG_PARAMS_CMD,
+	WMI_TLV_TAG_STRUCT_MOTION_DET_START_STOP_CMD,
+	WMI_TLV_TAG_STRUCT_MOTION_DET_BASE_LINE_START_STOP_CMD,
+	WMI_TLV_TAG_STRUCT_MOTION_DET_EVENT,
+	WMI_TLV_TAG_STRUCT_MOTION_DET_BASE_LINE_EVENT,
+	WMI_TLV_TAG_STRUCT_NDP_TRANSPORT_IP_PARAM,
+	WMI_TLV_TAG_STRUCT_OBSS_SPATIAL_REUSE_SET_CMD,
+	WMI_TLV_TAG_STRUCT_ESP_ESTIMATE_EVENT,
+	WMI_TLV_TAG_STRUCT_NAN_HOST_CONFIG_PARAM,
+	WMI_TLV_TAG_STRUCT_SPECTRAL_BIN_SCALING_PARAM,
+	WMI_TLV_TAG_STRUCT_PEER_CFR_CAPTURE_CONF_CMD,
+	WMI_TLV_TAG_STRUCT_PEER_CHAN_WIDTH_SWITCH_CMD,
+	WMI_TLV_TAG_STRUCT_CHAN_WIDTH_PEER_LIST,
+	WMI_TLV_TAG_STRUCT_OBSS_SPATIAL_REUSE_SET_DEF_OBSS_THRESH_CMD,
+	WMI_TLV_TAG_STRUCT_PDEV_HE_TB_ACTION_FRM_CMD,
+	WMI_TLV_TAG_STRUCT_PEER_EXTD2_STATS,
+	WMI_TLV_TAG_STRUCT_HPCS_PULSE_START_CMD,
+	WMI_TLV_TAG_STRUCT_PDEV_CTL_FAILSAFE_CHECK_PARAM,
+	WMI_TLV_TAG_STRUCT_VDEV_CHAINMASK_CONFIG_CMD,
+	WMI_TLV_TAG_STRUCT_VDEV_BCN_OFFLOAD_QUIET_CONFIG_CMD,
+	WMI_TLV_TAG_STRUCT_NAN_EVENT_INFO,
+	WMI_TLV_TAG_STRUCT_NDP_CHANNEL_INFO,
+	WMI_TLV_TAG_STRUCT_NDP_CMD,
+	WMI_TLV_TAG_STRUCT_NDP_EVENT,
+	WMI_TLV_TAG_STRUCT_PDEV_PKTLOG_FILTER_CMD,
+	WMI_TLV_TAG_STRUCT_PDEV_PKTLOG_FILTER_INFO,
+	WMI_TLV_TAG_STRUCT_QUIET_OFFLOAD_INFO,
+	WMI_TLV_TAG_STRUCT_GET_BCN_RECV_STATS,
+	WMI_TLV_TAG_STRUCT_VDEV_BCN_RECV_STATS_EVENT,
+	WMI_TLV_TAG_STRUCT_PEER_TX_PN_REQUEST_CMD,
+	WMI_TLV_TAG_STRUCT_PEER_TX_PN_RESPONSE_EVENT,
+	WMI_TLV_TAG_STRUCT_TLV_ARRAYS_LEN_PARAM,
+	WMI_TLV_TAG_STRUCT_PEER_UNMAP_RESPONSE_CMD,
+	WMI_TLV_TAG_STRUCT_PDEV_CSC_SWITCH_COUNT_STATUS_EVENT,
+	WMI_TLV_TAG_STRUCT_ROAM_BSS_LOAD_CONFIG_CMD,
+	WMI_TLV_TAG_STRUCT_ROAM_BLACKLIST_EVENT,
+	WMI_TLV_TAG_STRUCT_CSC_VDEV_LIST,
+	WMI_TLV_TAG_STRUCT_VDEV_GET_MWS_COEX_INFO_CMD,
+	WMI_TLV_TAG_STRUCT_VDEV_GET_MWS_COEX_STATE,
+	WMI_TLV_TAG_STRUCT_VDEV_GET_MWS_COEX_DPWB_STATE,
+	WMI_TLV_TAG_STRUCT_VDEV_GET_MWS_COEX_TDM_STATE,
+	WMI_TLV_TAG_STRUCT_VDEV_GET_MWS_COEX_IDRX_STATE,
+	WMI_TLV_TAG_STRUCT_VDEV_GET_MWS_COEX_ANTENNA_SHARING_STATE,
+	WMI_TLV_TAG_STRUCT_REQUEST_WLM_STATS_CMD,
+	WMI_TLV_TAG_STRUCT_WLM_STATS_EVENT,
+	WMI_TLV_TAG_STRUCT_KEY_MATERIAL_EXT,
+	WMI_TLV_TAG_STRUCT_PEER_CFR_CAPTURE_EVENT,
+	WMI_TLV_TAG_STRUCT_COLD_BOOT_CAL_DATA,
+	WMI_TLV_TAG_STRUCT_PDEV_SET_RAP_CONFIG,
+	WMI_TLV_TAG_STRUCT_PDEV_SET_RAP_CONFIG_ON_STA_PS,
+	WMI_TLV_TAG_STRUCT_PDEV_RAP_INFO_EVENT,
+	WMI_TLV_TAG_STRUCT_STA_TDCC_CONFIG_CMD,
+	WMI_TLV_TAG_STRUCT_ROAM_DEAUTH_CONFIG_CMD,
+	WMI_TLV_TAG_STRUCT_ROAM_IDLE_CONFIG_CMD,
+	WMI_TLV_TAG_STRUCT_IDLE_TRIGGER_MONITOR_CMD,
+	WMI_TLV_TAG_STRUCT_STATS_INTERFERENCE,
+	WMI_TLV_TAG_STRUCT_ROAM_SCORE_DELTA_PARAM,
+	WMI_TLV_TAG_STRUCT_ROAM_CND_MIN_RSSI_PARAM,
+	WMI_TLV_TAG_STRUCT_CHAN_RF_CHARACTERIZATION_INFO,
+	WMI_TLV_TAG_STRUCT_IFACE_COMBINATION_IND_EVENT,
+	WMI_TLV_TAG_STRUCT_IFACE_COMBINATION,
+	WMI_TLV_TAG_STRUCT_IFACE_LIMIT,
 
 	WMI_TLV_TAG_MAX
 };
@@ -1434,6 +1550,7 @@ enum wmi_tlv_service {
 	WMI_TLV_SERVICE_COEX_SUPPORT_UNEQUAL_ISOLATION = 177,
 	WMI_TLV_SERVICE_HW_DB2DBM_CONVERSION_SUPPORT = 178,
 	WMI_TLV_SERVICE_SUPPORT_EXTEND_ADDRESS = 179,
+	WMI_TLV_SERVICE_IFACE_COMBINATION_SUPPORT = 209,
 
 	WMI_TLV_MAX_EXT_SERVICE = 256,
 };
@@ -1616,6 +1733,8 @@ wmi_tlv_svc_map_ext(const __le32 *in, unsigned long *out, size_t len)
 	SVCMAP(WMI_TLV_SERVICE_SUPPORT_EXTEND_ADDRESS,
 	       WMI_SERVICE_SUPPORT_EXTEND_ADDRESS,
 	       WMI_TLV_MAX_SERVICE);
+	SVCMAP(WMI_TLV_SERVICE_IFACE_COMBINATION_SUPPORT,
+	       WMI_SERVICE_IFACE_COMBINATION_SUPPORT, WMI_TLV_MAX_SERVICE);
 }
 
 #undef SVCMAP
@@ -2567,4 +2686,117 @@ struct wmi_tlv_mgmt_tx_cmd {
 	__le32 frame_len;
 	__le32 buf_len;
 } __packed;
+
+struct wmi_tlv_iface_combination_event {
+	/* common part */
+	__le32 pdev_n;
+
+	/* iface combination part
+	 * wmi_tlv_iface_combinations[] will follow.
+	 * 1. iface combinations:
+	 * wmi_tlv_iface_combination combinations[0];
+	 * wmi_tlv_iface_combination combinations[.];
+	 * wmi_tlv_iface_combination combinations[m];
+	 * ===========================================
+	 * 2. limits for all combinations:
+	 * 2.1 limits for first combination:
+	 * wmi_tlv_iface_limit limits[0];
+	 * wmi_tlv_iface_limit limits[vdev_limit_n - 1];
+	 * -------------------------------------------
+	 * 2.2 limits for next combination:
+	 * wmi_tlv_iface_limit limits[i];
+	 * wmi_tlv_iface_limit limits[vdev_limit_n - 1];
+	 * -------------------------------------------
+	 * 2.3 limits for the last combination:
+	 * wmi_tlv_iface_limit limits[m];
+	 * wmi_tlv_iface_limit limits[vdev_limit_n - 1];
+	 */
+} __packed;
+
+struct wmi_tlv_iface_limit {
+	/**
+	 * How many vdevs can work as below vdev_type/vdev_subtype
+	 * in one combination
+	 */
+	__le32 vdev_limit_n;
+
+	/* Indicate what role above vdev can work as
+	 * Refer to "WMI_VDEV_TYPE_xx, WMI_VDEV_SUBTYPE_xx
+	 * for role definition
+	 */
+	__le32 vdev_type;
+	__le32 vdev_subtype;
+} __packed;
+
+#define WMI_TLV_IFACE_COMB_PEER_MAX_VALID_BIT 0
+#define WMI_TLV_IFACE_COMB_BCN_INT_MATCH_VALID_BIT 1
+#define WMI_TLV_IFACE_COMB_BCN_INT_MIN_GCD_VALID_BIT 2
+#define WMI_TLV_IFACE_COMB_NUM_UNIQUE_BI_VALID_BIT 3
+
+struct wmi_tlv_iface_combination {
+	/**
+	 * Max num peers can be supported in this combination.
+	 * It excludes the self-peers associated with each vdev.
+	 * It's the number of real remote peers.
+	 * eg: when working as AP mode, indicating how many clients can be
+	 * supported to connect with this AP.
+	 */
+	__le32 peer_max;
+	/**
+	 * Home channels supported on one single phy concurrently
+	 */
+	__le32 channel_n;
+	/**
+	 * The number of "wmi_tlv_iface_limit" for a specified combination.
+	 */
+	__le32 limits_n;
+	/**
+	 * Beacon intervals between infrastructure and AP types must match
+	 * or not.
+	 * 1: need match
+	 * 0: not need
+	 */
+	__le32 beacon_int_infra_match;
+	/**
+	 * This interface (vdev) combination supports different beacon
+	 * intervals.
+	 *
+	 * = 0
+	 *   all beacon intervals for different interface must be same.
+	 * > 0
+	 *   any beacon interval for the interface part of this combination AND
+	 *   GCD of all beacon intervals from beaconing interfaces of this
+	 *   combination must be greater or equal to this value.
+	 */
+	__le32 beacon_int_min_gcd;
+	/**
+	 * Number of different beacon intervals supported.
+	 */
+	__le32 num_unique_bi;
+	/**
+	 * This indicates which field contains valid value from FW side.
+	 * All fields except channel_n and limits_n are optional.
+	 */
+	__le32 valid_fields;
+} __packed;
+
+/**
+ * It is to save the parse status. Through the parse procedure,
+ * iface_combinations info will be got finally.
+ */
+struct wmi_tlv_iface_comb_parse {
+	struct wmi_tlv_iface_combination_event *ev;
+	struct wmi_tlv_iface_combination *combs;
+	struct wmi_tlv_iface_limit *limits;
+	/* for combos fill */
+	int n_combs;
+	struct ieee80211_iface_combination *comb_fill_max_interfaces;
+
+	/* for limits fill
+	 * comb_index point to the current combo
+	 * limit_index point to the next available limit slot
+	 */
+	int comb_index;
+	int limit_index;
+};
 #endif

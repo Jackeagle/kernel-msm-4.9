@@ -64,6 +64,12 @@ static const struct wmi_tlv_policy wmi_tlv_policies[] = {
 		= { .min_len = sizeof(struct wmi_tlv_wow_event_info) },
 	[WMI_TLV_TAG_STRUCT_TX_PAUSE_EVENT]
 		= { .min_len = sizeof(struct wmi_tlv_tx_pause_ev) },
+	[WMI_TLV_TAG_STRUCT_IFACE_COMBINATION_IND_EVENT]
+		= { .min_len = sizeof(struct wmi_tlv_iface_combination_event) },
+	[WMI_TLV_TAG_STRUCT_IFACE_COMBINATION]
+		= { .min_len = sizeof(struct wmi_tlv_iface_combination) },
+	[WMI_TLV_TAG_STRUCT_IFACE_LIMIT]
+		= { .min_len = sizeof(struct wmi_tlv_iface_limit) },
 };
 
 static int
@@ -526,6 +532,177 @@ static int ath10k_wmi_tlv_event_peer_delete_resp(struct ath10k *ar,
 	return 0;
 }
 
+static u16 ath10k_wmi_tlv_vdev_type_remap(struct wmi_tlv_iface_limit *limit)
+{
+	u32 vdev_has_type = __le32_to_cpu(limit->vdev_type);
+	u32 vdev_has_subtype = __le32_to_cpu(limit->vdev_subtype);
+	u16 type = 0;
+
+	if (vdev_has_subtype) {
+		if (vdev_has_subtype & BIT(WMI_VDEV_SUBTYPE_P2P_DEVICE))
+			type |= BIT(NL80211_IFTYPE_P2P_DEVICE);
+		if (vdev_has_subtype & BIT(WMI_VDEV_SUBTYPE_P2P_CLIENT))
+			type |= BIT(NL80211_IFTYPE_P2P_CLIENT);
+		if (vdev_has_subtype & BIT(WMI_VDEV_SUBTYPE_P2P_GO))
+			type |= BIT(NL80211_IFTYPE_P2P_GO);
+	} else {
+		if (vdev_has_type & BIT(WMI_VDEV_TYPE_AP))
+			type |= BIT(NL80211_IFTYPE_AP);
+		if (vdev_has_type & BIT(WMI_VDEV_TYPE_STA))
+			type |= BIT(NL80211_IFTYPE_STATION);
+		if (vdev_has_type & BIT(WMI_VDEV_TYPE_IBSS))
+			type |= BIT(NL80211_IFTYPE_ADHOC);
+	}
+
+	return type;
+}
+
+static int ath10k_wmi_tlv_iface_comb_parse(struct ath10k *ar, u16 tag, u16 len,
+					   const void *ptr, void *data)
+{
+	int ret = 0;
+	unsigned long valid_fields = 0;
+	struct wmi_tlv_iface_comb_parse *p = data;
+	struct ieee80211_iface_combination *comb = &ar->iface.combo[0];
+	struct ieee80211_iface_limit *limit = NULL;
+
+	switch (tag) {
+	case WMI_TLV_TAG_STRUCT_IFACE_COMBINATION_IND_EVENT:
+		p->ev = (struct wmi_tlv_iface_combination_event *)ptr;
+		break;
+	case WMI_TLV_TAG_ARRAY_STRUCT:
+		ret = ath10k_wmi_tlv_iter(ar, ptr, len,
+					  ath10k_wmi_tlv_iface_comb_parse, p);
+		break;
+	case WMI_TLV_TAG_STRUCT_IFACE_COMBINATION:
+		p->combs = (struct wmi_tlv_iface_combination *)ptr;
+
+		if (p->n_combs >= MAX_NUM_IFACE_COMBINATIONS) {
+			ath10k_warn(ar, "Exceed Max Num Iface Combinations!\n");
+			ret = -ENOMEM;
+			goto out;
+		}
+
+		valid_fields = __le32_to_cpu(p->combs->valid_fields);
+
+		if (test_bit(WMI_TLV_IFACE_COMB_BCN_INT_MATCH_VALID_BIT,
+			     &valid_fields))
+			comb[p->n_combs].beacon_int_infra_match =
+				__le32_to_cpu(p->combs->beacon_int_infra_match);
+
+		if (test_bit(WMI_TLV_IFACE_COMB_BCN_INT_MIN_GCD_VALID_BIT,
+			     &valid_fields))
+			comb[p->n_combs].beacon_int_min_gcd =
+				__le32_to_cpu(p->combs->beacon_int_min_gcd);
+
+		comb[p->n_combs].limits = kcalloc(le32_to_cpu(p->combs->limits_n),
+						  sizeof(*limit), GFP_ATOMIC);
+		if (!comb[p->n_combs].limits) {
+			ret = -ENOMEM;
+			goto out;
+		}
+
+		p->n_combs++;
+		ar->iface.combo_sz++;
+		break;
+	case WMI_TLV_TAG_STRUCT_IFACE_LIMIT:
+		p->limits = (struct wmi_tlv_iface_limit *)ptr;
+
+		/**
+		 * p->comb_index: current iface combo index, default value 0
+		 * comb[p->comb_index]: current iface comb
+		 * p->limit_index: point to the next available iface limit slot,
+		 * limit_index default value 0.
+		 * comb[p->comb_index].n_limits: num of limits of this
+		 * comb_index. n_limits value got from
+		 * WMI_TLV_TAG_STRUCT_IFACE_COMBINATION assignment.
+		 *
+		 * So the logic here:
+		 * 0) Basic precondition now we have got all comb(s) in
+		 *    WMI_TLV_TAG_STRUCT_IFACE_COMBINATION assignment.
+		 * 1) if (limit_index >= n_limits of current iface combo, then
+		 *    this new iface limit will belong to a new iface combo. So
+		 *    update the index
+		 *    a. comb_index++ and limit_index reset as 0.
+		 *    b. comb_fill_max_interfaces point to the current iface
+		 *       combo to fill max_interfaces field. And its default
+		 *       value should point to the first iface combo.
+		 * 2) Use combo_index/limit_index to do assignment, and finally
+		 *    limit_index++ to point to the next available limit slot.
+		 * 3) Loop to 1) when find new iface limit, else exit the parse
+		 *    procedure.
+		 */
+		if (p->limit_index >= comb[p->comb_index].n_limits) {
+			p->comb_index++;
+			p->limit_index = 0;
+			p->comb_fill_max_interfaces = &comb[p->comb_index];
+		}
+
+		limit = (struct ieee80211_iface_limit *)
+			  &comb[p->comb_index].limits[p->limit_index];
+		limit->max = __le32_to_cpu(p->limits->vdev_limit_n);
+		limit->types = ath10k_wmi_tlv_vdev_type_remap(p->limits);
+		ar->iface.interface_modes |= limit->types;
+
+		/**
+		 * ar->iface.beacon_tx_offload_max_vdev default value is 2.
+		 * If limit type is AP and
+		 * limit->max > ar->iface.beacon_tx_offload_max_vdev, we will
+		 * override this value by limit->max.  FW needs this value in
+		 * WMI_INIT command for beacon offload function.
+		 */
+		if ((limit->types & BIT(NL80211_IFTYPE_AP)) &&
+		    limit->max > ar->iface.beacon_tx_offload_max_vdev)
+			ar->iface.beacon_tx_offload_max_vdev = limit->max;
+		if (!p->comb_fill_max_interfaces)
+			/* point to the first combination */
+			p->comb_fill_max_interfaces = comb;
+
+		p->comb_fill_max_interfaces->max_interfaces += limit->max;
+
+		p->limit_index++;
+		break;
+	default:
+		break;
+	}
+out:
+	if (ret) {
+		int i;
+
+		for (i = 0; i < p->n_combs; i++) {
+			kfree(comb[i].limits);
+			comb[i].limits = NULL;
+		}
+	}
+	return ret;
+}
+
+static int ath10k_wmi_tlv_iface_combination(struct ath10k *ar,
+					    struct sk_buff *skb)
+{
+	int ret;
+	struct wmi_tlv_iface_comb_parse parse;
+
+	if (!test_bit(WMI_SERVICE_IFACE_COMBINATION_SUPPORT, ar->wmi.svc_map))
+		return 0;
+
+	memset(&parse, 0, sizeof(struct wmi_tlv_iface_comb_parse));
+
+	ath10k_deinit_iface_comb(ar);
+	ath10k_init_iface_comb(ar);
+
+	ret = ath10k_wmi_tlv_iter(ar, skb->data, skb->len,
+				  ath10k_wmi_tlv_iface_comb_parse, &parse);
+
+	if (ret) {
+		ath10k_warn(ar, "%s:failed to parse tlv: %d\n", __func__, ret);
+		ar->iface.combo_sz = 0;
+		return ret;
+	}
+
+	return 0;
+}
+
 /***********/
 /* TLV ops */
 /***********/
@@ -651,6 +828,9 @@ static void ath10k_wmi_tlv_op_rx(struct ath10k *ar, struct sk_buff *skb)
 	case WMI_TLV_SERVICE_READY_EVENTID:
 		ath10k_wmi_event_service_ready(ar, skb);
 		return;
+	case WMI_TLV_IFACE_COMBINATION_EVENTID:
+		ath10k_wmi_tlv_iface_combination(ar, skb);
+		break;
 	case WMI_TLV_READY_EVENTID:
 		ath10k_wmi_event_ready(ar, skb);
 		break;
@@ -1833,7 +2013,8 @@ static struct sk_buff *ath10k_wmi_tlv_op_gen_init(struct ath10k *ar)
 	cfg->max_frag_entries = __cpu_to_le32(2);
 	cfg->num_tdls_vdevs = __cpu_to_le32(TARGET_TLV_NUM_TDLS_VDEVS);
 	cfg->num_tdls_conn_table_entries = __cpu_to_le32(0x20);
-	cfg->beacon_tx_offload_max_vdev = __cpu_to_le32(2);
+	cfg->beacon_tx_offload_max_vdev =
+			__cpu_to_le32(ar->iface.beacon_tx_offload_max_vdev);
 	cfg->num_multicast_filter_entries = __cpu_to_le32(5);
 	cfg->num_wow_filters = __cpu_to_le32(ar->wow.max_num_patterns);
 	cfg->num_keep_alive_pattern = __cpu_to_le32(6);

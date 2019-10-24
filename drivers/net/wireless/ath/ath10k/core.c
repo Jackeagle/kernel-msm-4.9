@@ -3246,6 +3246,7 @@ struct ath10k *ath10k_core_create(size_t priv_size, struct device *dev,
 		  ath10k_core_set_coverage_class_work);
 
 	init_dummy_netdev(&ar->napi_dev);
+	ath10k_init_iface_comb(ar);
 
 	ret = ath10k_coredump_create(ar);
 	if (ret)
@@ -3284,6 +3285,7 @@ void ath10k_core_destroy(struct ath10k *ar)
 	ath10k_coredump_destroy(ar);
 	ath10k_htt_tx_destroy(&ar->htt);
 	ath10k_wmi_free_host_mem(ar);
+	ath10k_deinit_iface_comb(ar);
 	ath10k_mac_destroy(ar);
 }
 EXPORT_SYMBOL(ath10k_core_destroy);

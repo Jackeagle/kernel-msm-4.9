@@ -9025,6 +9025,18 @@ int ath10k_mac_register(struct ath10k *ar)
 				ARRAY_SIZE(ath10k_tlv_if_comb);
 		}
 		ar->hw->wiphy->interface_modes |= BIT(NL80211_IFTYPE_ADHOC);
+
+		if (test_bit
+		    (WMI_SERVICE_IFACE_COMBINATION_SUPPORT, ar->wmi.svc_map)) {
+			/**
+			 * If combo_sz is not ZERO, it means that host will use
+			 * iface_combinations reported from FW.
+			 */
+			if (ar->iface.combo_sz)
+				ath10k_iface_comb_assignment(ar);
+			else
+				ath10k_warn(ar, "iface combination event missing!\n");
+		}
 		break;
 	case ATH10K_FW_WMI_OP_VERSION_10_1:
 	case ATH10K_FW_WMI_OP_VERSION_10_2:
