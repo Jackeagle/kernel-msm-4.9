@@ -1133,7 +1133,7 @@ static int ath10k_wmi_tlv_op_pull_peer_kick_ev(struct ath10k *ar,
 					       struct wmi_peer_kick_ev_arg *arg)
 {
 	const void **tb;
-	const struct wmi_peer_sta_kickout_event *ev;
+	const struct wmi_tlv_peer_sta_kickout_event *ev;
 	int ret;
 
 	tb = ath10k_wmi_tlv_parse_alloc(ar, skb->data, skb->len, GFP_ATOMIC);
@@ -1150,6 +1150,8 @@ static int ath10k_wmi_tlv_op_pull_peer_kick_ev(struct ath10k *ar,
 	}
 
 	arg->mac_addr = ev->peer_macaddr.addr;
+	arg->reason = __le32_to_cpu(ev->reason);
+	arg->reason_code_valid = true;
 
 	kfree(tb);
 	return 0;
